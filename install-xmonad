@@ -1,5 +1,5 @@
 #!/bin/bash
-# 
+#
 # Installation script which setup up an Ubuntu Xenial machine to use this
 # xmonad configuration. 
 #
@@ -13,29 +13,50 @@
 #
 # Please review the readme file to find out exactly what it does and does not 
 # do. Or, visit the repository for more information: 
+#
+# https://github.com/Xsbd/xmonad-ubuntu-conf
+# Maintainer: Xsbd
+#
+# forked from:
 # https://github.com/davidbrewer/xmonad-ubuntu-conf
-# 
 # Author: David Brewer
 
+CWD=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
 echo "Installing required packages..."
-sudo apt-get install xmonad libghc-xmonad-dev libghc-xmonad-contrib-dev xmobar xcompmgr nitrogen stalonetray moreutils synapse ssh-askpass-gnome
+sudo apt-get install xmonad libghc-xmonad-dev libghc-xmonad-contrib-dev xmobar xcompmgr nitrogen trayer moreutils suckless-tools udiskie xfce4-power-manager blueman
 
 echo "Creating xmonad xsession configuration..."
 if [ -f "/usr/share/xsessions/xmonad.desktop" ] ; then
   sudo mv -n /usr/share/xsessions/xmonad.desktop /usr/share/xsessions/xmonad.desktop.original
 fi
-sudo cp ~/.xmonad/xmonad.desktop /usr/share/xsessions
+sudo cp $(CWD)/xmonad.desktop /usr/share/xsessions
 sudo chmod a+r /usr/share/xsessions/xmonad.desktop
 
-# Copy our custom Xmonad greeter badge into place, but only if we're using Unity Greeter
+# Copy our custom Xmonad greeter badge into place
+# for unity-greeter
 if [ -d "/usr/share/unity-greeter" ] ; then
-  sudo cp ~/.xmonad/images/custom_xmonad_badge.png /usr/share/unity-greeter
+  sudo cp $(CWD)/images/custom_xmonad_badge.png /usr/share/unity-greeter
   sudo chmod a+r /usr/share/unity-greeter/custom_xmonad_badge.png
 fi
+# for gtk-greeter for lightdm
+if [ -d "/usr/share/icons/hicolor/scalable/places" ] ; then
+  sudo cp $(CWD)/images/xmonad_badge-symbolic.svg /usr/share/icons/hicolor/scalable/places
+  sudo chmod a+r /usr/share/icons/hicolor/scalable/places/xmonad_badge-symbolic.svg
+  sudo gtk-update-icon-cache /usr/share/icons/hicolor
+  sudo cp -f $(CWD)/xmonad.desktop.gtk /usr/share/xsessions/xmonad.desktop
+  sudo chmod a+r /usr/share/xsessions/xmonad.desktop
+fi
 
-echo "Linking to customized gnome 2 configuration..."
+echo "Linking to customized configuration..."
 if [ -f "~/.gtkrc-2.0" ] ; then
   mv -n ~/.gtkrc-2.0 ~/gtkrc-2.0.original
 fi
-ln -s .xmonad/.gtkrc-2.0 ~/.gtkrc-2.0
-
+ln -sf $(CWD)/.gtkrc-2.0 ~/
+for i in  get-volume startup-hook start-xmonad xmobarrc xmonad.hs
+do
+  if [ -f "i" ] ; then
+    mv -n ~/.xmonad/$i ~/xmonad/$i.original
+  fi
+ln -sf $(CWD)/$i ~/.xmonad/
+done

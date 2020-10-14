@@ -1,6 +1,28 @@
 xmonad-ubuntu-conf
 ==================
 
+**TLDR:** The following changes have been made to the original:
+
+#### Replacements
+1. stalonetray -->  trayer  for system tray
+2. synapse     -->  dmenu   for app launcher
+
+#### Added
+1. udiskie             =>  automount plug'n'play disks
+2. xfce4-power-manager =>  systray icon for powermgmt
+3. blueman             =>  bluetooth systray icon
+
+The following is the readme from the original author.
+I planned to come up with a minimal configuration from scratch, but the original repo did most of what I wanted, and I didn't know enough of haskell/xmonad, hence the fork. 
+<br/>
+<br/>
+<br/>
+
+### Forked From
+***Repository:*** https://github.com/davidbrewer/xmonad-ubuntu-conf <br/>
+***Author:***     David Brewer <br/>
+<br/>
+
 My xmonad config for Ubuntu 18.04, including package list, config files, and instructions. If you're on a different Ubuntu LTS release, take a look at the different branches available to see if there is one for you. The master branch is typically for the newest LTS.
 
 **Warning**: this is not yet thoroughly tested on 18.04. I had to make a few minor changes for Bionic, but I have only tried it out on one machine so far, and only in a single screen configuration. If you're on a single-screen configuration, give it a shot and let me know if it works for you! Things are still a bit... weird on multi-monitor setups.
@@ -16,10 +38,10 @@ This configuration has the following features and properties:
 * Lightweight standalone configuration, not intended to be run inside Gnome or XFCE.
 * Workspace layout concept based on a grid corresponding to the number pad. Workspaces can be selected with numpad keys, number keys, or via arrows in a consistent and intuitive fashion.
 * A restrained but useful set of layout options. I have tried to stick with simple, flexible layouts which are useful on a daily basis.
-* Basic status bar and task tray configuration using xmobar and stalonetray
-* Relies on synapse for launching applications
+* Basic status bar and task tray configuration using xmobar and trayer
+* Relies on dmenu for launching applications
 * Includes tray icon for network management
-* Adds xmonad as an option to your GDM3 login greeter
+* Adds xmonad as an option to your GDM3/lightdm login greeter
 * Wallpaper handling and support for basic transparency
 
 
@@ -54,10 +76,10 @@ This xmonad configuration uses a variety of different packages. Some of them are
 
 If you want to install the entire list of packages, you can run the following command:
 
-    sudo apt-get install xmonad libghc-xmonad-dev libghc-xmonad-contrib-dev xmobar xcompmgr nitrogen stalonetray moreutils synapse ssh-askpass-gnome
+    sudo apt-get install xmonad libghc-xmonad-dev libghc-xmonad-contrib-dev xmobar xcompmgr nitrogen trayer moreutils suckless-tools udiskie xfce4-power-manager blueman ssh-askpass-gnome 
 
 If you prefer to pick and choose, the following packages can be omitted while still maintaining the overall functionality:
- * ssh-askpass-gnome
+ * ssh-askpass-gnome 
 
 ### Install customized xmonad session ###
 
@@ -69,6 +91,11 @@ To launch our xmonad session, we want to be able to pick it from the normal list
 The default session picker as of Ubuntu Bionic is GDM3. Earlier versions user "Unity Greeter". GDM3 doesn't support any kind of representative icon for your sessions, but in case you are still using Unity Greeter, I have provided a suitable icon. Just copy the custom xmonad badge into the appropriate location for a nice consistent login experience. 
 
     sudo cp ~/.xmonad/images/custom_xmonad_badge.png /usr/share/unity-greeter
+
+If you are using lightdm as your session picker with gtk-greeter then use the following:
+
+    sudo cp ~/.xmonad/images/xmonad_badge-symbolic.svg /usr/share/icons/hicolor/scalable/places
+    sudo gtk-update-icon-cache /usr/share/icons/hicolor
 
 ### Make Gnome 2-based components less ugly ###
 
@@ -100,7 +127,7 @@ When you start xmonad for the first time, you're not looking at much. You will s
 
 There are no menus for selecting programs to run. Everything is launched in one of two ways:
 * `mod-shift-enter`: launches a terminal window. You can run other programs from the terminal.
-* `ctrl-space`: launches a Synapse prompt. You can run any program by starting to type its name, and then hitting enter once Synapse has found the program you want. 
+* `mod-p`: launches the dmenu program launcher
 
 ### The status bar
 
@@ -179,31 +206,18 @@ Now that you're creating, focusing, and resizing windows like crazy, you may fin
 
 There are many ways to organize workspaces in xmonad, but I have chosen to associate them with keys on the number pad. Here's how you can think of the layout of workspaces which are provided by default in this configuration:
 
-    7:Chat  8:Dbg  9:Pix
-    4:Docs  5:Dev  6:Web
-    1:Term  2:Hub  3:Mail
-    0:VM    Extr1  Extr2
+    7: 8: 9:
+    4: 5: 6:
+    1: 2: 3:
+    0: E1 E2
 
 Associating workspaces with number pad keys has a number of advantages:
 * If you are using a full-sized desktop keyboard, it is very intuitive to select workspaces using the numpad.
 * If you are using a laptop, you can still select workspaces numerically using the regular number keys.
 * Because the number pad provides a grid layout, it's also intuitive and efficient to navigate between workspaces using the arrow keys.
 
-The twelve workspaces I use are named for the kinds of work I regularly do. I have tried to train myself to always keep certain types of work on specific workspaces, because it makes it much easier to keep track of what I'm doing and find it again if I get interrupted.
-
-You are likely to want to rename these to suit your own needs. Nevertheless, here's an explanation of what I use each workspace for in case it gives you some ideas:
-* Chat: right now I am using this for Slack
-* Dbg: debugging. Depending on what I'm doing this may contain a terminal or a browser.
-* Pix: image manipulation; specifically, I run GIMP on this workspace.
-* Docs: documentation. I try to keep whatever docs I am referring to on this workspace.
-* Dev: development work. I spend the bulk of my time on this workspace. I often have an IDE and a terminal on this workspace. Note that it is centrally located to all the other workspaces; I treat it like a "home row", and I can jump to most other workspaces with one or two arrow keystrokes.
-* Web: general web surfing.
-* Term: I keep a terminal open here for tasks which are not directly development related.
-* Hub: ticket tracking (my workplace calls our ticket tracking and project planning server "hub").
-* Mail: email (and also calendaring).
-* VM: I launch virtual machines here.
-* Extr1: general usage
-* Extr2: general usage
+I have twelve workspaces.
+I don't use named workspaces, but many may prefer to keeping diffrent tasks on separate named workspaces.
 
 #### Selecting a workspace
 
@@ -222,6 +236,8 @@ You can move the currently focused window to any workspace by simply adding "shi
 Note that when you move a window to a workspace using numbers or the keypad, the window is sent to that workspace but your focus stays on the same workspace you were on. However, when you move a window to a workspace using the arrows, your focus goes along with the window.
 
 #### Special workspaces
+
+I don't use them but the layout preference of original author are just commented out
 
 There are two workspaces which have a special configuration. They are locked to a special layout, and certain programs will always spawn on those workspaces.
 * The **Chat** workspace (7) is where I keep my Slack session. It's configured to always use a full screen layout. In addition, any Slack windows that are launched will automatically be sent to this workspace.
@@ -285,7 +301,7 @@ If you make changes to `start-xmonad`, the only way to see the changes is to log
 The `startup-hook` script runs immediately after xmonad is initialized, via the startupHook mechanism of xmonad itself. 
 
 You should take a look at editing the `startup-hook` script if you want to modify any of the software that is started by default, such as:
-* application launcher (synapse)
+* application launcher
 * network management software
 * ssh keychain unlocking prompt
 
@@ -295,7 +311,7 @@ Note that by default I have commented out the ssh keychain unlocking prompt, ass
 
 The `xmobarrc` file is used to configure the ovreall appearance of the status bar, as well as provide part of its content. You should consider editing it if you want to make any of the following kinds of changes:
 * you want to change the font or default colors used for the bar
-* you want to change the width or position of the bar (expect to also make changes to stalonetray in the `start-xmonad` file as well in this case
+* you want to change the width or position of the bar (expect to also make changes to trayer in the `start-xmonad` file as well in this case
 * you want to change the contents or formatting of the system information and/or date which is displayed near the right side of the status bar
 
 You can see whether the changes you have made to `xmobarrc` have been effective by recompiling xmonad using `mod-q`. This typically happens very quickly. If you try this and your status bar disappears, it means you made a syntax error in your configuration file. Undo the change and hit `mod-q` again to confirm things are working again.
@@ -330,6 +346,8 @@ In particular I have noticed problems with machines that have more than one soun
 
 Other Notes
 -----------
+
+from the original author. I don't use the following applications so this doesn't apply to me but may apply to you.
 
 ### Font Issues with QT4 Applications (Specifically, Zeal) ###
 

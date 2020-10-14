@@ -5,8 +5,9 @@
 # running any programs which you want to use within xmonad but
 # which don't need to be initialized before xmonad is running. 
 #
-# Author: David Brewer
-# Repository: https://github.com/davidbrewer/xmonad-ubuntu-conf
+# Repository: https://github.com/Xsbd/xmonad-ubuntu-conf
+# Maintainer: Xsbd
+# Original Author: David Brewer
 
 #
 # TRAY ICON SOFTWARE
@@ -15,6 +16,17 @@
 # Network manager, so we don't have to configure wifi at the command line.
 if [ -z "$(pgrep nm-applet)" ] ; then
     nm-applet --sm-disable &
+fi
+
+# XFCE4 Power manager
+if [ -z "$(pgrep xfce4-power-manager)" ] ; then
+   sleep 3
+   xfce4-power-manager &
+fi
+
+# Bluetooth applet
+if [ -z "$(pgrep blueman-applet)" ] ; then
+    blueman-applet &
 fi
 
 # Applet for managing print jobs from the tray.
@@ -26,10 +38,15 @@ fi
 # APPLICATION LAUNCHER
 #
 
-# Use synapse as our app launcher. (-s: don't display until requested) 
-if [ -z "$(pgrep synapse)" ] ; then
-    synapse -s &
+# Auto mount drives
+if [ -z "$(pgrep udiskie)" ] ; then
+   udiskie &
 fi
+
+# Use synapse as our app launcher. (-s: don't display until requested) 
+# if [ -z "$(pgrep synapse)" ] ; then
+#    synapse -s &
+# fi
 
 # On login, we unlock the ssh keychain so we're not prompted for 
 # passphrases later. We pipe /dev/null to ssh-add to make it realize 
@@ -57,5 +74,5 @@ fi
 # change depending on what devices you have plugged into USB. We extract the
 # id of the device from the output of xinput, then use it to disable the
 # device
-TOUCHPAD_ID=`xinput | grep 'Synaptics TouchPad' | cut -f 2 | cut -f 2 -d =`
-xinput set-prop $TOUCHPAD_ID "Device Enabled" 0
+# TOUCHPAD_ID=`xinput | grep 'Synaptics TouchPad' | cut -f 2 | cut -f 2 -d =`
+# xinput set-prop $TOUCHPAD_ID "Device Enabled" 0
